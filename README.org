@@ -1,0 +1,38 @@
+#+TITLE: FINAL 2022
+
+* Instructions:
+Welcome to the Final Exam!
+
+You have been hired as a Contractor by Stark Industries to help with the development of the Jarvis-2022 Bomb Sight.
+
+Your job will be be write the most critical elements of the Bomb Sight Code. 
+
+These include the elements that will retrieve the target data, calculate the drop solution and finally pass the data on for use by other systems.
+
+Good Luck Tony Stark is watching!
+
+
+* TODOs by day
+** TODO (2/24) [0/2]:
+- [ ] Write code to display single precision floating points to stdout as ascii
+- [ ] Write code to display double precision floating points to stdout as ascii
+*** TODO Write C code as proof of concept
+
+** TODO (2/25) [0/2]:
+- [ ] Write code to read single precision floating points from stdin as ascii
+- [ ] Write code to read double precision floating points from stdin as ascii
+
+** TODO (2/26) [/]
+*** TODO shared functions [/]
+- [ ] Implement factorial.s
+- [ ] Implement exponents.s
+*** [/] Implement taylor series with 50 iterations for sin
+- [ ] main code
+- [ ] test code (use zsh)
+*** [/] Implement Taylor Series with 50 iterations for cos
+- [ ] main code
+- [ ] test code (use zsh)
+
+** TODO (2/27) [/]
+- [ ] relax, attend class with questions
+- [ ] plan out second week

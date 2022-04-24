@@ -1,0 +1,6 @@
+*.o
+*.out
+*.elf
+test*
+!test*.s
+main
