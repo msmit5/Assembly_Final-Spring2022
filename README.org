@@ -36,15 +36,11 @@ exit syscall, but the exit code is expected in r0
 exit syscall, however we will write a message to stdout in the process.
 ***** ARGUMENTS
 Stack:
- .
-
-/|\
-
- |    length of error message  (pop 1)
-
- |    address of error message (pop 2)
-
- |
+ . \
+/|\ \
+ |    length of error message  (pop 1) \
+ |    address of error message (pop 2) \
+ | \
 
  r0 <-- Exit code
 
