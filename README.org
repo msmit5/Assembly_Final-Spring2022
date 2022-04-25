@@ -47,13 +47,25 @@ Stack:
 *** write-float.s
 write-float.s prints a floating point number as decimal to stdount.
 **** wf_single
-prints a single precision floating point to stdout
+prints a single precision floating point to stdout. I use a very hacky way to do this, so see below for a section called "The Hack"
 #+BEGIN_SRC c
 wf_single(float* r0)
 #+END_SRC
 
 ** Usage
-** Misc
+** The Hack
+*** write-float
+The hack consists of 5 steps:
+  1. Separate the integral and fractional sections of float f1
+    - This is done manually, using the standard arm processor
+  2. Print the integral part of f1
+    - I am using the printDecimal.s to do this
+  3. Take the fractional part of f1, multiply it by a power of 10 (100,000 is used in the code). Let it be f2
+    - This is done in the neon floating point coprocessor
+  4. Separate the integral and fractional sections of f2
+    - Done in the same manner as before
+  5. Print a decimal point
+  6. Print the integral part of f2
 
 * TODOs by day
 ** TODO (2/24) [0/3]:

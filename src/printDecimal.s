@@ -5,14 +5,14 @@
     @ Expects r0 to be value to print
     @ Returns nothing
 printDecimal:
-    push {LR}           @ Preserve LR
+    push {r0-r10, LR}           @ Preserve LR
 
     @ Check if the value is 0, as I made an error and accidentally made it not support
     @ printing 0. This error is caused by my implementation of determineMagnitude.
     cmp r0, #0
     moveq r1, r0        @ printDigit expects value in r1
     bleq printDigit
-    popeq {LR}          @ Because nothing else needs to be done, leave subroutine
+    popeq {r0-r10, LR}          @ Because nothing else needs to be done, leave subroutine
     bxeq LR
 
     @ First and foremost, the magnitude of the number (amount of digits) needs to be learned
@@ -44,7 +44,7 @@ determineValueLoop:
     b convertDec_loop           @ Move onto next number
 
 convertDone:
-    pop {LR}                    @ Restore LR
+    pop {r0-r10, LR}                    @ Restore LR
     bx LR
 
 
@@ -79,7 +79,7 @@ determineMagnitude_loop:
     @ Returns: Void (restores values)
 printDigit:
     push {LR}           @ Preserve LR
-    push {r0-r9}        @ Preserving all regs because I DO NOT want a print function to
+    push {r0-r10}        @ Preserving all regs because I DO NOT want a print function to
                         @ taint values
     ldr r8, = charMap
     add r1, r8
@@ -90,7 +90,7 @@ printDigit:
     mov r7, #4          @ syscall number
     svc 0
 
-    pop {r0-r9}         @ Restoring values because I DO NOT want my print function to
+    pop {r0-r10}         @ Restoring values because I DO NOT want my print function to
                         @ taint values
     pop {LR}            @ Restore LR
     bx LR               @ Link back

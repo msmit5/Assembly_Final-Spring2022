@@ -1,5 +1,5 @@
 .global wf_single,wf_double,_start
-
+.fpu neon-fp-armv8
 .text
 
 @ Remove this when testing is done
@@ -47,31 +47,52 @@ wf_single:
         mov r1, r6          @ Save for later
         bl printDecimal
         
+        nop
+        bl _print_dot
+
         @ print fractional part of number
         @ format to only be decimal part of the number
+        vmov s0, r5
+        vmov s1, r1
+        ldr  r1, =fpow5
+        ldr  r1, [r1]
+        vmov s2, r1
+
+        vcvt.f32.u32 s1, s1
+
+        vsub.f32 s0, s0, s1
+        vmul.f32 s0, s2
+        vmov r5, s0 
+        
+        ldr r6, =M_EXPONENT_32
+        and r6, r5 
+        lsr r6, #23
+    
+        subs r6, r6, #127
+        mov r10, r6
+
         ldr r6, =M_MANTISSA_32
         and r6, r5
-        add r9, r10, #9     @ Amount of bits to shift to remove integer part.
-        lsl r6, r9          @ chop off integer part
-        @ lsr r6, r9          @ return to original position
 
+        rsb r9, r10, #23    @ r9 = 23 - r10 (amount of bits to shift to remove fractional part. 23 is mantissa size)
+        lsr r6, r9          @ chop off decimal part of mantissa
+        mov r8, #1          @ Prepare to account for the binary digit that is chopped off
+        lsl r8, r10         @ shift bit into position
+        orr r6, r8          @ add bit to number
+        mov r0, r6          @ move to r0 for printing
+        mov r1, r6          @ Save for later
+        bl printDecimal
         
 
         b wf32_done
 
     wf32_belowZero:
+    nop
+    # DO THE HACK!!!
+    b wf32_done
 
-    @ We can't have a negative value!
-    @ If it is negative, we need to print the error message and leave!
-    ldr r0, =err_below_0
-    push {r0}
-    ldr r0, =err_len
-    push {r0}
-    b exit_p
-        
 
     wf32_done:
-        bl _print_ln
         bl _print_ln
         pop {r0-r10, PC}    @ pop LR into the PC in a similar way that is done by gcc
         @ bx lr   (not needed because return already occurred)
@@ -85,18 +106,30 @@ wf_double:
 _print_ln:
     push {r0-r10, LR}
 
-    ldr r0, =nline
-    mov r1, #1
+    mov r0, #1
+    ldr r1, =nline
     mov r2, #1
     mov r7, #4    
     svc 0
 
     pop {r0-r10, PC}
+
+_print_dot:
+    push {r0-r10, LR}
+
+    mov r0, #1
+    ldr r1, =dot
+    mov r2, #1
+    mov r7, #4    
+    svc 0
+
+    pop {r0-r10, PC}
+
 _print_sign:
     push {r0-r10, LR}
 
-    ldr r0, =neg
-    mov r1, #1
+    mov r0, #1
+    ldr r1, =neg
     mov r2, #1
     mov r7, #4    
     svc 0
@@ -107,6 +140,7 @@ _print_sign:
 pmpt:   .ascii "> "
 nline:  .byte 0x0A,0x00
 neg:    .ascii "-"
+dot:    .ascii "."
 buffer: .space 16
 nums:   .ascii "0123456789"
 
@@ -129,21 +163,15 @@ EXPONENT_32 = 127
 
 
 @ for decimal hack
-fpows:
-fpow1:  .single 1
-fpow2:  .single 10
-fpow3:  .single 100
-fpow4:  .single 1000
-fpow5:  .single 10000
-fpow6:  .single 100000
-fpow7:  .single 1000000
-fpow8:  .single 100000000
-fpow9:  .single 1000000000
+fpow5:  .single 100000
 
 
 
-err_below_0: .asciz: "Cannot hit target, too close and/or too fast!"
+err_below_0: .asciz "Cannot hit target, too close and/or too fast!"
 err_len = .-err_below_0
+
+@ This string is a hack used to print the leading 0s without using a loop
+zeroString: .ascii "0000000000000000000000000000000000000000000000000000"
 
 @ TESTING:
 sarr:
