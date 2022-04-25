@@ -4,3 +4,4 @@
 test*
 !test*.s
 main
+.vscode/*

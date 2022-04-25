@@ -12,15 +12,60 @@ These include the elements that will retrieve the target data, calculate the dro
 Good Luck Tony Stark is watching!
 
 
+* Documentation:
+** Modules
+*** exit.s
+exit.s exits the program. It has multiple different versions of the function. All use raw service calls to exit.
+**** exit
+exit is the most simple way of exiting, and exits with an exit code of 0
+#+BEGIN_SRC asm
+mov r0, #0
+mov r7, #1
+#+END_SRC
+**** exit_f
+Exit syscall but with an exit code of 1
+#+BEGIN_SRC asm
+mov r0, #1
+mov r7, #1
+#+END_SRC
+**** exit_c
+exit syscall, but the exit code is expected in r0
+***** ARGUMENTS
+- r0 <-- exit code
+**** exit_p
+exit syscall, however we will write a message to stdout in the process.
+***** ARGUMENTS
+Stack:
+ .
+/|\
+ |    length of error message  (pop 1)
+ |    address of error message (pop 2)
+ |
+
+ r0 <-- Exit code
+
+*** write-float.s
+write-float.s prints a floating point number as decimal to stdount.
+**** wf_single
+prints a single precision floating point to stdout
+#+BEGIN_SRC c
+wf_single(float* r0)
+#+END_SRC
+
+** Usage
+** Misc
+
 * TODOs by day
-** TODO (2/24) [0/2]:
+** TODO (2/24) [0/3]:
 - [ ] Write code to display single precision floating points to stdout as ascii
 - [ ] Write code to display double precision floating points to stdout as ascii
+- [ ] DOCUMENTATION!
 *** TODO Write C code as proof of concept
 
-** TODO (2/25) [0/2]:
+** TODO (2/25) [0/3]:
 - [ ] Write code to read single precision floating points from stdin as ascii
 - [ ] Write code to read double precision floating points from stdin as ascii
+- [ ] Fix the printDecimal.s to accept larger integers, up to the maximum size of a double word (8 bytes, I'm not using x86 defs)
 
 ** TODO (2/26) [/]
 *** TODO shared functions [/]
