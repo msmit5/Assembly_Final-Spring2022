@@ -86,10 +86,58 @@ wf_single:
 
         b wf32_done
 
+
     wf32_belowZero:
-    nop
-    # DO THE HACK!!!
-    b wf32_done
+    
+        @ get the positive version of the exponent
+        mvn r10, r10        @ Make the negative number posative
+        add r10, #1         @ Add 1 because mvn just finds complement
+        mov r11, r10
+
+
+        @ Divide by three, because it will let me know how many 0s to add
+        mov r0, #0
+        b div3
+        div3:
+            sub r11, #3
+            cmp r11, #0
+            ble divDone
+            add r0, #1
+            b div3
+    divDone:
+        bl _print_zeros
+
+        vmov s0, r5
+        vmov s1, r1
+        ldr  r1, =fpow5
+        ldr  r1, [r1]
+        vmov s2, r1
+
+        vcvt.f32.u32 s1, s1
+
+        vsub.f32 s0, s0, s1
+        vmul.f32 s0, s2
+        vmov r5, s0
+
+        ldr r6, =M_EXPONENT_32
+        and r6, r5
+        lsr r6, #23
+
+        subs r6, r6, #127
+        mov r10, r6
+
+        ldr r6, =M_MANTISSA_32
+        and r6, r5
+
+        rsb r9, r10, #23    @ r9 = 23 - r10 (amount of bits to shift to remove fractional part. 23 is mantissa size)
+        lsr r6, r9          @ chop off decimal part of mantissa
+        mov r8, #1          @ Prepare to account for the binary digit that is chopped off
+        lsl r8, r10         @ shift bit into position
+        orr r6, r8          @ add bit to number
+        mov r0, r6          @ move to r0 for printing
+        mov r1, r6          @ Save for later
+        bl printDecimal
+        b wf32_done
 
 
     wf32_done:
@@ -136,6 +184,19 @@ _print_sign:
 
     pop {r0-r10, PC}
 
+    @ Args: r0, which is how many tailing 0s to print
+_print_zeros:
+    push {r0-r10, LR}
+
+    add r0, #2                  @ Because I want to print the amount of trailing 0s in the string, I need to account  for the 0. that prefixes it
+    mov r2, r0                  @ msglen
+    mov r0, #1                  @ write to stdout
+    ldr r1, =zeroString         @ "0.00000..."
+    mov r7, #4                  @ write syscall num
+    svc 0
+
+    pop {r0-r10, PC}
+
 .data
 pmpt:   .ascii "> "
 nline:  .byte 0x0A,0x00
@@ -163,7 +224,22 @@ EXPONENT_32 = 127
 
 
 @ for decimal hack
+fpows:
+fpow0:  .single 1
+fpow1:  .single 10
+fpow2:  .single 100
+fpow3:  .single 1000
+fpow4:  .single 10000
 fpow5:  .single 100000
+fpow6:  .single 1000000
+fpow7:  .single 10000000
+fpow8:  .single 100000000
+fpow9:  .single 1000000000
+fpowA:  .single 10000000000
+fpowB:  .single 100000000000
+fpowC:  .single 1000000000000
+fpowD:  .single 10000000000000
+fpowE:  .single 100000000000000
 
 
 
@@ -171,10 +247,11 @@ err_below_0: .asciz "Cannot hit target, too close and/or too fast!"
 err_len = .-err_below_0
 
 @ This string is a hack used to print the leading 0s without using a loop
-zeroString: .ascii "0000000000000000000000000000000000000000000000000000"
+zeroString: .ascii "0.0000000000000000000000000000000000000000000000000000"
 
 @ TESTING:
 sarr:
+sng0: .single 0.00321
 sng1: .single 3.1415926
 sng2: .single 13.37
 sng3: .single 98765.4321

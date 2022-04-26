@@ -36,11 +36,11 @@ exit syscall, but the exit code is expected in r0
 exit syscall, however we will write a message to stdout in the process.
 ***** ARGUMENTS
 Stack:
- . \
-/|\ \
- |    length of error message  (pop 1) \
- |    address of error message (pop 2) \
- | \
+ .
+/|\ 
+ |    length of error message  (pop 1) 
+ |    address of error message (pop 2) 
+ | 
 
  r0 <-- Exit code
 
@@ -68,10 +68,10 @@ The hack consists of 5 steps:
   6. Print the integral part of f2
 
 * TODOs by day
-** TODO (2/24) [0/3]:
-- [ ] Write code to display single precision floating points to stdout as ascii
-- [ ] Write code to display double precision floating points to stdout as ascii
-- [ ] DOCUMENTATION!
+** DONE (2/24) [2/3]:
+- [X] Write code to display single precision floating points to stdout as ascii
+- [-] Write code to display double precision floating points to stdout as ascii
+- [X] DOCUMENTATION!
 *** TODO Write C code as proof of concept
 
 ** TODO (2/25) [0/3]:
