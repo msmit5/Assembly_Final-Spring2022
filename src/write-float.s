@@ -41,20 +41,62 @@ writeFloat:
 
         bl _print_Dot
 
-        @ Grab the decimal part and print it using the hack
-        vmov s2, r2             @ s2 contains the decimal part
-        ldr  r8, =farr          @ get the current amount of extra decimal places printed
-        ldr  r8, [r8]           @ dereference
-        vmov s8, r8             @ mov the power of 10 to s8
-        vmul.f32 s2, s8         @ multiply the decimal part by the power of 10 to get an integral part
-        vcvt.u32.f32 s2, s2     @ convert the float to an unsigned int (decimals are unsigned)
-        vmov r0, s2             @ move the unsigned int to r0
+        mov r0, r2
+        bl printDecimalPart
 
-        bl printDecimal
+        @ Grab the decimal part and print it using the hack
+        mov r0, r2
+
         b wf_done
 
 
     wf_LT1:
+        ldr r0, [r0]
+        bl printDecimalPart
+
+
+    @ REQUIRES:
+    @ R0 <-- float
+    printDecimalPart:
+        cmp r0, #0
+        beq print0ret
+        mov r5, r0
+        bl getLeadingZerosDereferenced
+        mov r8, r0              @ amount of 0s before we start caring about len
+        cmp r0, #12             @ maximum amount of leadin 0s
+        bgt _err_too_small
+        bl _print_2_pos
+
+        mov r0, r5
+        ldr r7, =f_10
+        ldr r7, [r7]
+        vmov s10, r7
+        vmov s0, r0
+        bl getParts
+        add r8, #3
+        mov r7, #0              @ counter           leadingZeros = r8
+        pd_loop:                @ for(r7 = 0; r7 < leadingZeros + 3; r7++)
+            vmov s2, r2
+            vmul.f32 s2, s10
+            vmov r0, s2
+
+            bl getParts
+            mov r5, r0
+            mov r0, r1
+            bl printDecimal
+
+            add r7, #1
+            cmp r7, r8
+            blt pd_loop
+
+        b wf_done
+
+    print0ret:
+        bl printDecimal
+        b wf_done
+
+
+    old_wf_LT1:
         bl getLeadingZeros
         mov r2, r0              @ Save leading 0s for later
 
@@ -100,6 +142,33 @@ _print_Leading_Zeros:
     mov r2, r0                  @ len
     ldr r1, =zeroString         @ addr of zeroString
     mov r0, #1                  @ stdout
+    svc 0
+
+    pop {r0-r10, PC}
+
+_print_2_pos:
+    push {r0-r10, LR}
+    mov r0, #2
+
+    mov r7, #4                  @ print syscall number
+    mov r2, r0                  @ len
+    ldr r1, =zeroString         @ addr of zeroString
+    mov r0, #1                  @ stdout
+    svc 0
+
+    pop {r0-r10, PC}
+
+
+    @ requires r0 have len of 0s
+_print_Zeros:
+    push {R0-r10, LR}
+
+    mov r2, r0
+
+    ldr r1, =zeroString
+    add r1, #2                  @ This pushes the ptr past the 0.
+    mov r0, #1
+    @ r2 will have len already
     svc 0
 
     pop {r0-r10, PC}
@@ -169,6 +238,7 @@ CON_FLOAT_ONE = 0x3F800000
 
 
     @ floats for conversion
+f_10:   .single 10
 farr:
 f3:     .single 1000
 f4:     .single 10000

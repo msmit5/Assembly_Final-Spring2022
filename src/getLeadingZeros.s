@@ -1,4 +1,4 @@
-    .global getLeadingZeros
+    .global getLeadingZeros,getLeadingZerosDereferenced
     .fpu neon-fp-armv8
     .text
 
@@ -27,6 +27,20 @@ loop:
 
 
     pop {r1-r10, PC}
+
+
+getLeadingZerosDereferenced:
+    push {r1-r10, LR}
+    ldr r2, =float10
+    ldr r3, =float1
+    ldr r2, [r2]
+    ldr r3, [r3]
+
+    vmov s1, r0
+    vmov s2, r2
+    vmov s3, r3
+    mov r0, #0
+    b loop
 
 
 .data
