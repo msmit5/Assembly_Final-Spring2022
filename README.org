@@ -11,6 +11,91 @@ These include the elements that will retrieve the target data, calculate the dro
 
 Good Luck Tony Stark is watching!
 
+** Detailed instructions with extra info
+
+The angle of the Target from the Aircraft is A1 and the angle of the Aircraft relative to the vertical y is 90-A1.
+
+The direct distance of the Aircraft to the Target or Range is d.
+
+The Aircraft drops the ordnance, allowing it to free fall to the target.
+
+ The Aircraft is traveling a a speed of Vx m/s.
+
+The important equations are;
+
+1.  y=d*cos(90-A1), where A1 is in degrees
+
+2.  x=d*sin(90-A1), where A1 is in degrees
+
+3.  y=0.5*a*t^2, where a=9.8 m/s^2
+
+4.  x'=Vx*t
+
+The vertical distance above ground is measured by a radar altimeter and provided in meters.
+
+Given the knowns above x', t and d can be solved for.
+
+Note x' does not equal x.
+
+x' is the distance the ordinance will travel in time t (the time the ordinance is in free fall).
+
+x is the current x distance to the target.
+
+1a. d=y/cos(90-A1)
+
+2a. From 1a and 1 above solve for x
+
+3a. y is given solve for t or t=sqrt(2y/a)
+
+The cos(x) and sin(x) can be solved for from a Taylor Series Expansion.
+
+sin(x)=(-1^n/(2*n+1)!)*x^(2*n+1) for n=0...
+
+cos(x)=(-1^n/(2*n)!)*x^(2*n) for n=0...
+
+Note x above is in radians where 2*PI radians = 360 degrees...all angles need to be converted to radians from degrees and back!
+
+To restate the following data is provided to the Jarvis-2022.
+
+1.  Vx i m/s
+
+2. y in m
+
+3. A1 in degrees
+
+Data will be received as ASC encoded characters in a buffer in the following format;
+
+"UPDATE A1:XXX DEGREES, Y XXX METERS, VX XXX M/S"
+
+Where the X's indicate ASC digits for the A1, Y and VX values.
+
+The input string must be decoded to extract the required data for calculations.
+
+For the exam simply create test buffers for use in testing your application.
+
+The output of the Jarvis-2022 must be another ASC buffer in the following format;
+
+"SOLUTION DROP IN XXX SECS"
+
+Where XXX represents the drop time in seconds.
+
+The drop time is the time given by (x-x')/Vx and represents the time delay required to ensure when the ordinance is dropped that it will free fall on to the target.
+
+Note if the drop time is negative this represents the case where the Aircraft is too close for a free fall drop.
+
+The output should be "SOLUTION ABORT!" in this case.
+
+Your application should support a test mode to allow the input of the target data from STDIN (keyboard) and display the results to STDOUT (monitor).
+
+Test mode should be entered by the user inputting 'TEST' from STDIN (keyboard).
+
+Test mode should be exited by the user inputting 'NORMAL' from STDIN (keyboard).
+
+Please submit your s files, demo snips of your application in operation using the test mode and normal mode along with a word document detailing your design.
+
+Submit all of your results in a single zip file.
+
+Good Luck & have a nice summer break!
 
 * Documentation:
 ** Modules

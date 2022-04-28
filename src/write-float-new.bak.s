@@ -2,6 +2,7 @@
     .fpu neon-fp-armv8
     .text
 
+
     @ EXPECTS:
     @ r0 <-- Address of float
 
@@ -10,14 +11,13 @@
 writeFloat:
     push {r0-r10, LR}           @ preserve all data, just a print
 
-    push {r0}
     ldr r5, [r0]
 
     @ check if the string is negative
-@    ldr r6, =M_SIGN_32
-@    and r6, r5
-@    cmp r6, #1
-@    bne _err_neg
+    ldr r6, =M_SIGN_32
+    and r6, r5
+    cmp r6, #0
+    bne _err_neg
 
     @ Check if number is less than 1 (or greater than 1)
     @ The hacky way I am using is this:
@@ -27,7 +27,7 @@ writeFloat:
     ldr r6, =M_EXPONENT_32
     ldr r7, =CON_FLOAT_ONE
     and r6, r5
-    cmp r6, r7
+    cmp r7, r6
     blt wf_LT1
     b   wf_GT1
 
@@ -38,8 +38,6 @@ writeFloat:
         bl getParts
         mov r0, r1
         bl printDecimal
-
-        bl _print_Dot
 
         @ Grab the decimal part and print it using the hack
         vmov s2, r2             @ s2 contains the decimal part
@@ -56,21 +54,20 @@ writeFloat:
 
     wf_LT1:
         bl getLeadingZeros
-        mov r2, r0              @ Save leading 0s for later
-
         @CONSTRAINT!!!
         @ Maximum amount of leading 0s: 12
         cmp r0, #12
         bgt _err_too_small
 
-        bl _print_Leading_Zeros
+        bl printLeadingZeros
+        mov r2, r0              @ Save leading 0s for later
+
 
         mov r0, r5              @ r5 contains the float
         bl getDecimalPart
         vmov s1, r1
 
-        mov r7, #4
-        mul r2, r7
+        mul r2, #4
         ldr r3, =farr
         add r3, r2
         ldr r2, [r3]
@@ -83,8 +80,6 @@ writeFloat:
 
 
 wf_done:
-    pop {r0}                    @ DEBUG: lets me see r0 before leaving
-    bl _print_New_Line
     pop {r0-r10, PC}
 
 
@@ -92,7 +87,7 @@ wf_done:
 @-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     @ Expects:
     @ r0 <-- amount of leading 0s
-_print_Leading_Zeros:
+_print_Leading_Zeros
     push {r0-r10, LR}
     add r0, #2                  @ This accounts for the "0." in the zeroString
 
@@ -100,30 +95,6 @@ _print_Leading_Zeros:
     mov r2, r0                  @ len
     ldr r1, =zeroString         @ addr of zeroString
     mov r0, #1                  @ stdout
-    svc 0
-
-    pop {r0-r10, PC}
-
-
-_print_Dot:
-    push {r0-r10, LR}
-
-    mov r0, #1
-    ldr r1, =dot
-    mov r2, #1
-    mov r7, #4
-    svc 0
-
-    pop {r0-r10, PC}
-
-_print_New_Line:
-    push {r0-r10, LR}
-
-    mov r7, #4
-    mov r2, #1
-    ldr r1, =nline
-    mov r0, #1
-    svc 0
 
     pop {r0-r10, PC}
 
@@ -149,23 +120,22 @@ _err_too_small:
 zeroString: .ascii "0.00000000000000000000000000000000000000000000000000000000000"
 dot:        .ascii "."
 tmpbuf:     .space 16
-
-nline:      .asciz "\n\n Overrunning nline"
+nline:      .byte 0x0A, 0x00
 
 err_neg_str:    .asciz "ERROR: NEGATIVE VALUE!!\nTHIS SHOULD NOT REACH writeFloat!\n"
-err_neg_len=    .-err_neg_str
+err_neg_len:    .-err_neg_str
 
 err_too_small_str:  .asciz "ERROR! VALUE TOO SMALL\n"
-err_too_small_len=  .-err_too_small_str
+err_too_small_len:  .-err_too_small_str
 
     .align 4
 
 @ bitmasks for some float related things
-M_SIGN_32     = 0x80000000
-M_EXPONENT_32 = 0x7F800000
-M_MANTISSA_32 = 0x007FFFFF
-M_EXP_SIGN_32 = 0x40000000
-CON_FLOAT_ONE = 0x3F800000
+M_SIGN_32     = 0x800000000
+M_EXPONENT_32 = 0x7F8000000
+M_MANTISSA_32 = 0x007FFFFFF
+M_EXP_SIGN_32 = 0x400000000
+CON_FLOAT_ONE = 0x3F8000000
 
 
     @ floats for conversion
