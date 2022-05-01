@@ -1,4 +1,4 @@
-    .global writeFloat
+    .global writeFloat,_print_Zeros
     .fpu neon-fp-armv8
     .text
 
@@ -52,20 +52,23 @@ writeFloat:
 
     wf_LT1:
         ldr r0, [r0]
+        bl _print_2_pos
         bl printDecimalPart
 
 
     @ REQUIRES:
     @ R0 <-- float
     printDecimalPart:
-        cmp r0, #0
-        beq print0ret
+        cmp r0, #0              @ check if the float is a 0
+        beq print0ret           @ if it is a 0, print a single 0 and return
+				@ It should be noted due to float fuzziness, this is an imperfect method
         mov r5, r0
         bl getLeadingZerosDereferenced
         mov r8, r0              @ amount of 0s before we start caring about len
         cmp r0, #12             @ maximum amount of leadin 0s
         bgt _err_too_small
-        bl _print_2_pos
+	cmp r0, #0
+        //blne _print_Zeros
 
         mov r0, r5
         ldr r7, =f_10
@@ -161,10 +164,11 @@ _print_2_pos:
 
     @ requires r0 have len of 0s
 _print_Zeros:
-    push {R0-r10, LR}
+    push {r0-r10, LR}
 
     mov r2, r0
 
+    mov r7, #4
     ldr r1, =zeroString
     add r1, #2                  @ This pushes the ptr past the 0.
     mov r0, #1
@@ -253,3 +257,6 @@ fc:     .single 1000000000000
 fd:     .single 10000000000000
 fe:     .single 100000000000000
 ff:     .single 1000000000000000
+
+
+PRINT_INTEGRAL_ZERO = 0x01020304
