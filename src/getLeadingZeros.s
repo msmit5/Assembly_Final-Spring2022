@@ -19,8 +19,9 @@ getLeadingZeros:
     vmov s3, r3                 @ 1
     mov r0, #0
 loop:
-    vmullt.f32   s1, s2
-    vcmp.f32     s1, s3
+    @ Note to future self, there was a bug where I had a vmullt here
+    vmul.f32   s1, s2         @ s1 = s1 * 10
+    vcmp.f32     s1, s3         @ is s1 less than 1?
     vmrs  apsr_nzcv, fpscr
     addlt r0, #1
     blt loop

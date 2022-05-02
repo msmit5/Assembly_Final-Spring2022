@@ -52,7 +52,12 @@ writeFloat:
 
     wf_LT1:
         ldr r0, [r0]
+        mov r5, r0
+        bl getLeadingZerosDereferenced
+        cmp r0, #12
+        beq _err_too_small
         bl _print_2_pos
+        mov r0, r5
         bl printDecimalPart
 
 
@@ -65,10 +70,6 @@ writeFloat:
         mov r5, r0
         bl getLeadingZerosDereferenced
         mov r8, r0              @ amount of 0s before we start caring about len
-        cmp r0, #12             @ maximum amount of leadin 0s
-        bgt _err_too_small
-	cmp r0, #0
-        //blne _print_Zeros
 
         mov r0, r5
         ldr r7, =f_10
