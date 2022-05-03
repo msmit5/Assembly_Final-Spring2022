@@ -13,7 +13,7 @@ sin:
     mov r5, r0                  @ our number
     mov r6, r0                  @ accumulator. We are skipping the first iteration, which returns itself
     mov r10, #2                 @ iterator.    We are skipping the first iteration, which returns itself
-    mov r7, #80               @ 2 * (MAX ITERATIONS) (40 total)
+    mov r7, #70               @ 2 * (MAX ITERATIONS) (35 total)
     mov r8, #2
 
     @ mov r5,

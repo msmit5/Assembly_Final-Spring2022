@@ -16,7 +16,7 @@ writeFloat:
     @ check if the string is negative
     ldr r6, =M_SIGN_32
     and r6, r5
-    cmp r6, #1
+    cmp r6, #0
     bllt _print_neg_sign        @ less than because it is a signed comparison,
     ldrlt r6, =M_SIGN_CLEAR     @ and we are checking sign bit
     andlt r5, r6                @ clear sign bit
