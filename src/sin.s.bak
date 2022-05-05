@@ -1,4 +1,4 @@
-    .global cos
+    .global sin
     .fpu neon-fp-armv8
 
 
@@ -7,12 +7,11 @@
     @
     @ RETURNS:
     @ r0 <-- result (float)
-cos:
+sin:
     push {r1-r10, LR}
     bl sanitize
     mov r5, r0                  @ our number
-    ldr r6, =f_one              @ accumulator. We are skipping the first iteration, which returns itself
-    ldr r6, [r6]
+    mov r6, r0                  @ accumulator. We are skipping the first iteration, which returns itself
     mov r10, #2                 @ iterator.    We are skipping the first iteration, which returns itself
     mov r7, #80               @ 2 * (MAX ITERATIONS) (40 total)
     mov r8, #2
@@ -23,10 +22,11 @@ cos:
     @ mov r3, fac
     @ mov r4, getSign
     @ mov r5, x
-    cosLoop:
+    sinLoop:
         cmp r10, r7
-        bgt cosDone
+        bgt sinDone
         mov r1, r10
+        add r1, #1
 
         bl powHelper
         bl facHelper
@@ -45,9 +45,9 @@ cos:
         vmov r0, s0             @ move accumulator to r0 for preservation
 
         add r10, #2             @ increase iterator
-        b cosLoop
+        b sinLoop
 
-    cosDone:
+    sinDone:
         pop {r1-r10, PC}
 
 

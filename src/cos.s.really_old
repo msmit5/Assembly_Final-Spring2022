@@ -9,12 +9,11 @@
     @ r0 <-- result (float)
 cos:
     push {r1-r10, LR}
-    bl sanitize
     mov r5, r0                  @ our number
-    ldr r6, =f_one              @ accumulator. We are skipping the first iteration, which returns itself
-    ldr r6, [r6]
+    ldr r6, =f_one              @ iteration 1 should always be this (but doesn't always return this??)
+    mov r6, r0                  @ accumulator. We are skipping the first iteration, which returns itself
     mov r10, #2                 @ iterator.    We are skipping the first iteration, which returns itself
-    mov r7, #80               @ 2 * (MAX ITERATIONS) (40 total)
+    mov r7, #100                @ 2 * (MAX ITERATIONS) (50 total)
     mov r8, #2
 
     @ mov r5,
@@ -32,7 +31,7 @@ cos:
         bl facHelper
         bl getSignHelper
 
-        @ Move the data to the FPU for processing
+        @ Move the data to the FPU for procescosg
         vmov s0, r0
         vmov s2, r2
         vmov s3, r3
@@ -85,7 +84,7 @@ powHelper:
     pop {r0,r1,r3-r10, PC}
 
     @ NOTE! This function has atypical I/O.
-    @ I am only using this atypical I/O because it is only accessible by a function with standard IO
+    @ I am only ucosg this atypical I/O because it is only accessible by a function with standard IO
     @ EXPECTS:
     @ r10 <-- iterator
     @
@@ -105,65 +104,6 @@ getSignHelper:
 
     pop {r0-r3, r5-r10, PC}     @ return
 
-
-    @ EXPECTS:
-    @ r0 <-- radians (float)
-    @
-    @ RETURNS:
-    @ r0 <-- -pi <=radians <=pi
-sanitize:
-    push {r1-r10, LR}
-
-    ldr r10, =f_tau
-    ldr r10, [r10]
-    ldr r9,  =f_pi
-    ldr r9, [r9]
-    mov r8, #0
-
-    vmov s9, r9                 @ PI
-    vmov s10, r10               @ TAU
-    vmov s0, r0                 @ input
-    vmov s20, r8                @ zero
-
-    vcmp.f32 s0, s20
-    vmrs apsr_nzcv, fpscr
-    bge san_loop_pos
-    b   san_loop_neg_hlpr
-
-    san_loop_pos:
-        vcmp.f32 s0, s9             @ cmp to pi
-        vmrs apsr_nzcv, fpscr   @ copy flags
-        vsubgt.f32 s0, s10      @ subtract 2pi (tau)
-        bgt san_loop_pos
-        b sanDone
-
-    san_loop_neg_hlpr:
-        ldr r10, =f_tau
-        ldr r10, [r10]
-        ldr r9,  =f_npi
-        ldr r9, [r9]
-        b san_loop_neg
-
-
-    san_loop_neg:
-        vcmp.f32 s0, s9             @ cmp to pi
-        vmrs apsr_nzcv, fpscr   @ copy flags
-        vaddlt.f32 s0, s10      @ subtract 2pi (tau)
-        blt san_loop_pos
-        b sanDone
-
-
-
-    sanDone:
-        vmov r0, s0
-        pop {r1-r10, PC}
-
-
     .data
-    .align 4
 f_one:  .single 1.0
 f_neg:  .single -1.0
-f_pi:   .single 3.1415926
-f_npi:  .single -3.1415926
-f_tau:  .single 6.2831853
-f_ntau: .single -6.2831853

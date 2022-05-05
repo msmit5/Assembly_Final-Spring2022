@@ -205,7 +205,7 @@ writeFloat:
 
 wf_done:
     pop {r0}                    @ DEBUG: lets me see r0 before leaving
-    bl _print_New_Line
+    @bl _print_New_Line
     pop {r0-r10, PC}
 
 

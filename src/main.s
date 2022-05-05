@@ -17,8 +17,17 @@ _start:
     blne test
 
     bl getDropTime_helper
+
+    @ checking if negative
     ldr r0, =dropTime
-    bl writeFloat
+    ldr r2, [r0]
+    mov r1, #1
+    lsl r1, #31
+    and r3, r2, r1
+    cmp r3, #0
+    bne abort
+
+    bl print_helper
 
     b exit
 
@@ -63,7 +72,11 @@ test:
 normal:
     push {r0-r10, LR}
 
-    b exit_f
+    ldr r0, =normalBuf
+    ldr r1, =angle
+    ldr r2, =height
+    ldr r3, =velocity
+    bl parseNormal
 
     pop {r0-r10, PC}
 
@@ -184,7 +197,41 @@ getDropTime_helper:
     ldr r5, =dropTime
     str r0, [r5]
 
-    pop  {r0-r10, PC}
+    pop {r0-r10, PC}
+
+    @ EXPECTS:
+    @ none
+    @
+    @ RETURNS:
+    @ none
+print_helper:
+    push {r0-r10, LR}
+
+    ldr r1, =p1_str
+    ldr r2, =p1_len
+    mov r0, #1
+    mov r7, #4
+    svc 0
+
+    ldr r0, =dropTime
+    bl writeFloat
+
+    ldr r1, =p2_str
+    ldr r2, =p2_len
+    mov r0, #1
+    mov r7, #4
+    svc 0
+
+    pop {r0-r10, PC}
+
+
+abort:
+    mov r0, #1
+    ldr r1, =abort_str
+    ldr r2, =abort_len
+    push {r1}
+    push {r2}
+    b exit_p
 
 err_mode:
     ldr r1, =err_mode_str
@@ -213,7 +260,16 @@ hei_prompt_len= .-hei_prompt_str
 vel_prompt_str: .asciz "Velocity: "
 vel_prompt_len= .-vel_prompt_str
 
+@ abort
+abort_str:  .asciz "SOLUTION ABORT!"
+abort_len=  .-abort_str
 
+@ print messages
+p1_str: .asciz "SOLUTION DROP IN "
+p1_len= .-p1_str
+
+p2_str: .asciz " SECS\n"
+p2_len= .-p2_str
 
     @ BUFFERS
     @ Reading
@@ -233,5 +289,8 @@ cmp_TEST:   .word 0x54534554
 
 
 @ TEST DATA (REAL MODE)
-tests:
-t1: .asciz "UPDATE A1:30.0 DEGREES, Y:900.0 METERS, VX:760.0 M/S"
+normalBuf:
+t1: .asciz "UPDATE A1:15.0 DEGREES, Y:939.0 METERS, VX:200.0 M/S"
+
+
+

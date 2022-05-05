@@ -20,6 +20,7 @@ getDropTime:
     bl getDistance
     bl getTimeToTarg
 
+    @ Solution: timeToTarget - fallTime
     vmov s5, r5
     vmov s3, r3
     vsub.f32 s5, s3
@@ -28,8 +29,6 @@ getDropTime:
 
 
     pop {r1-r10, PC}
-
-
 
 
     @ EXPECTS:

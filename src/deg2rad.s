@@ -22,6 +22,7 @@ deg2rad_int:
     @ r0 <-- floating point result
 deg2rad_float:
     push {r1-r10, LR}
+    vmov s0, r0
     bl convert
     vmov r0, s0
     pop {r1-r10, PC}
