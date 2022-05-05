@@ -19,7 +19,7 @@ The direct distance of the Aircraft to the Target or Range is d.
 
 The Aircraft drops the ordnance, allowing it to free fall to the target.
 
- The Aircraft is traveling a a speed of Vx m/s.
+The Aircraft is traveling a a speed of Vx m/s.
 
 The important equations are;
 
@@ -98,6 +98,8 @@ Submit all of your results in a single zip file.
 Good Luck & have a nice summer break!
 
 * Documentation:
+** CONSTRAINTS:
+- MAXIMUM NUMBER: 12! (479,001,600) is the maximum value I can print properly.
 ** Modules
 *** exit.s
 exit.s exits the program. It has multiple different versions of the function. All use raw service calls to exit.

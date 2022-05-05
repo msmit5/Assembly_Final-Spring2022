@@ -18,8 +18,9 @@ getLeadingZeros:
     vmov s2, r2                 @ 10
     vmov s3, r3                 @ 1
     mov r0, #0
+
+    @ multiply by 10 until greater than 1
 loop:
-    @ Note to future self, there was a bug where I had a vmullt here
     vmul.f32   s1, s2         @ s1 = s1 * 10
     vcmp.f32     s1, s3         @ is s1 less than 1?
     vmrs  apsr_nzcv, fpscr

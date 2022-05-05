@@ -27,6 +27,8 @@ _start:
     cmp r3, #0
     bne abort
 
+    @ Sadly, I do not have the ability to write an ascii string to a buffer
+    @ if I had access to clib like everyone else (sprintf), or more time, I would
     bl print_helper
 
     b exit
@@ -72,6 +74,7 @@ test:
 normal:
     push {r0-r10, LR}
 
+    @ prepare buffers before calling parseNormal
     ldr r0, =normalBuf
     ldr r1, =angle
     ldr r2, =height
@@ -86,6 +89,8 @@ normal:
     @
     @ RETURNS:
     @ r10 <-- flag
+    @
+    @ This function sets the mode flag in r10
 modeSelect:
     push {r0-r9, LR}
 
@@ -97,6 +102,7 @@ modeSelect:
     ldr r6, [r6]
     ldr r7, [r7]
 
+    @ check what mode should be selected and leave
     cmp   r7, r5
     moveq r10, r5
     popeq {r0-r9, PC}
@@ -109,6 +115,7 @@ modeSelect:
     pop {r0-r9, PC} @ <-- useless
 
 
+    @ prompt the mode read
 promptRead_init:
     push {r0-r10, LR}
 
@@ -134,6 +141,7 @@ promptRead_init:
     @
     @ OUTPUT:
     @ Buffers are updated with the given input
+    @ This function prompts the user and reads input during test mode
 prompt_read:
     push {r0-r10, LR}
     mov r0, r1                  @ move input to r0 to preserve it
@@ -183,6 +191,10 @@ flush:
         strb r2, [r0], #1       @ store one 0 byte to the input buffer, flushing it
         b floop
 
+
+    @ This function makes it easier to call getDropTime from the main
+    @ It takes no args
+    @ It stores the result of the calculations in =dropTime
 getDropTime_helper:
     push {r0-r10, LR}
 
@@ -204,6 +216,7 @@ getDropTime_helper:
     @
     @ RETURNS:
     @ none
+    @ It just simply prints the data
 print_helper:
     push {r0-r10, LR}
 
@@ -224,7 +237,7 @@ print_helper:
 
     pop {r0-r10, PC}
 
-
+    @ abort the program using exit_p
 abort:
     mov r0, #1
     ldr r1, =abort_str
@@ -233,6 +246,7 @@ abort:
     push {r2}
     b exit_p
 
+    @ abort program using exit_p
 err_mode:
     ldr r1, =err_mode_str
     ldr r2, =err_mode_len
@@ -287,10 +301,8 @@ cmp_NORM:   .word 0x4D524F4E
 
 cmp_TEST:   .word 0x54534554
 
+nullBytes:  .byte 0x00
 
 @ TEST DATA (REAL MODE)
 normalBuf:
 t1: .asciz "UPDATE A1:15.0 DEGREES, Y:939.0 METERS, VX:200.0 M/S"
-
-
-

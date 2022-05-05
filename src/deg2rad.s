@@ -33,6 +33,8 @@ deg2rad_float:
     @
     @ RETURNS:
     @ s0 <-- floating point number
+    @
+    @ Essentially, it just multiplies the degrees by pi/180
 convert:
     push {r1-r10, LR}
 

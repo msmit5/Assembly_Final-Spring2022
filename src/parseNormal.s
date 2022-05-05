@@ -29,8 +29,8 @@ parseNormal:
 
     @ parsing angle (num1)
     mov r0, r6                  @ num1/angle
-    bl verifyInputFloat
-    bl strToFloat
+    bl verifyInputFloat         @ call cerifyInputFloat to prepare data for conversion
+    bl strToFloat               @ convert to float
     pop {r1}                    @ retrieve angle loc
     str r0, [r1]
 
@@ -85,7 +85,7 @@ traverse:
             b traverseLoop
 
 
-        @ thisfunction sets the correct register to the pointer
+        @ this function sets the correct register to the pointer
         _setPointer:
             cmp r9, #1
             moveq r6, r0

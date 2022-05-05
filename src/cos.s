@@ -10,6 +10,7 @@ cos:
     push {r1-r10, LR}
 
     @ I am using a trigonometric identity
+    @ confunction identity
     @ cos(x) = sin(x + pi/2)
     ldr r5, =halfpi             @ pi/2
     ldr r5, [r5]
