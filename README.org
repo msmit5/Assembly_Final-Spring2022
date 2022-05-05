@@ -289,4 +289,8 @@ write-float.s prints a floating point number as decimal to stdount.
 
 
 ** Usage
-
+*** NORMAL MODE
+- when prompted type NORM
+*** TEST MODE
+- when prmpted type TEST
+- when inputting the number, type in a floating point number WITH THE DECIMAL, it is expected.
