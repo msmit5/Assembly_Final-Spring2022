@@ -1,8 +1,13 @@
 ASSEMBLER=as
 LINKER=ld
+OBJDIR=obj
+# make directory if not exit
 
-main: main.o printDecimal.o exit.o getLeadingZeros.o writeFloat.o getPart.o asciiToInt.o verifyInput.o strToFloat.o pow.o factorial.o cos.o deg2rad.o sin.o getDropTime.o parseNormal.o
+main: $(OBJDIR) main.o printDecimal.o exit.o getLeadingZeros.o writeFloat.o getPart.o asciiToInt.o verifyInput.o strToFloat.o pow.o factorial.o cos.o deg2rad.o sin.o getDropTime.o parseNormal.o
 	$(LINKER) obj/*.o -o main
+
+$(OBJDIR):
+	mkdir -p obj
 
 getPart.o: src/getPart.s
 	$(ASSEMBLER) src/getPart.s -o obj/getPart.o
