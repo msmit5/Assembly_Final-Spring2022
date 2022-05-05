@@ -99,22 +99,18 @@ Good Luck & have a nice summer break!
 
 * Documentation:
 ** CONSTRAINTS:
-- MAXIMUM NUMBER: 12! (479,001,600) is the maximum value I can print properly.
+- The maximum amount of leading 0s before a number is 12
+- The input into normal mode is assumed to be valid
+- stdout is used as the buffer for normal mode due to time constraints
+  - had I been able to use the clib, I would have used sprintf and been done :(
+  - it is also possible to read from stdout, so I am assuming that is possible that the other systems could listen to it
 ** Modules
 *** exit.s
 exit.s exits the program. It has multiple different versions of the function. All use raw service calls to exit.
 **** exit
 exit is the most simple way of exiting, and exits with an exit code of 0
-#+BEGIN_SRC asm
-mov r0, #0
-mov r7, #1
-#+END_SRC
 **** exit_f
 Exit syscall but with an exit code of 1
-#+BEGIN_SRC asm
-mov r0, #1
-mov r7, #1
-#+END_SRC
 **** exit_c
 exit syscall, but the exit code is expected in r0
 ***** ARGUMENTS
@@ -123,60 +119,174 @@ exit syscall, but the exit code is expected in r0
 exit syscall, however we will write a message to stdout in the process.
 ***** ARGUMENTS
 Stack:
- .
-/|\ 
- |    length of error message  (pop 1) 
- |    address of error message (pop 2) 
- | 
+- length of error message  (pop 1)
+- address of error message (pop 2)
 
  r0 <-- Exit code
 
+*** asciiToInt.s
+ascii to int takes in an addr of a string of an integer, and returns the integer contained in the string as an integer
+**** asciiToInt
+***** ARGUMENTS
+- r0 <-- addr of str
+- r1 <-- len of str
+***** RETURNS
+- r0 <-- integer
+
+
+*** cos.s
+cos is a wrapper for sin. It uses trig identities to map all inputs of cos to sin, so I don't need to implement cosine :)
+**** cos
+***** ARGUMENTS
+- r0 <-- input
+***** RETURNS
+- r0 <-- result
+
+*** sin.s
+sin uses the taylor series to calculate the sin function. It runs for 35 iterations of it
+**** sin
+***** ARGUMENTS
+- r0 <-- input
+***** RETURNS
+- r0 <-- result
+
+*** deg2rad.s
+converts degrees to radians, accepting either an int or a float as an arg
+**** deg2rad_int
+***** ARGUMENTS
+- r0 <-- integer
+***** RETURNS
+- r0 <-- result (float)
+**** deg2rad_float
+***** ARGUMENTS
+- r0 <-- float
+***** RETURNS
+- r0 <-- result (float)
+
+*** factorial.s
+runs the factorial operation on r0
+**** fac_float
+***** ARGUMENTS
+- r0 <-- float
+***** RETURNS
+- r0 <-- result (float)
+**** fac_int
+***** ARGUMENTS
+- r0 <-- int
+***** RETURNS
+- r0 <-- result (int)
+**** fac_int2float
+***** ARGUMENTS
+- r0 <-- int
+***** RETURNS
+- r0 <-- result (float)
+
+*** getDropTime.s
+runs the calculations to determine when to drop the bomb. I do things very slightly differently than the question calls for, because I use trig identities. Further, I use a slightly different method of getting the final answer (I subtract time to target from drop time)
+**** getDropTime
+***** ARGUMENTS
+- r0 <-- angle (degrees, float)
+- r1 <-- height (meters, float)
+- r2 <-- velocity (m/s, float)
+***** RETURNS
+- r0 <-- result
+
+*** getLeadingZeros.s
+gets the amount of leading 0s in the decimal part of a floating point number
+**** getLeadingZeros
+***** ARGUMENTS
+- r0 <-- address of float
+***** RETURNS
+- r0 <-- result (int)
+**** getLeadingZerosDereferenced
+***** ARGUMENTS
+- r0 <-- float
+***** RETURNS
+- r0 <-- result (int)
+
+*** getPart.s
+Retrieves the decimal and integral parts of a float. The integral part is returned as an integer, and the decimal part is returned as a float
+**** getIntegralPart
+***** ARGUMENTS
+- r0 <-- float
+***** RETURNS
+- r1 <-- result (int)
+**** getDecimalPart
+***** ARGUMENTS
+- r0 <-- float
+***** RETURNS
+- r1 <-- result (float)
+**** getParts
+***** ARGUMENTS
+- r0 <-- float
+***** RETURNS
+- r1 <-- integral part
+- r2 <-- decimal part
+
+*** main.s
+The driver of the program. Reads input, checks modes. CONTAINS THE ENTRY POINT _start
+
+*** parseNormal.s
+parses the string passed in during normal mode operation
+**** parseNormal
+***** ARGUMENTS
+- r0 <-- pointer to string
+- r1 <-- address of where to store A1
+- r2 <-- address of where to store Y
+- r3 <-- address of where to store vx
+***** RETURNS:
+- This function does not return anything. Instead, it
+  - writes to the mem addresses specified in r1, r2, and r3
+  - modifies the string pointed to at r0, such that verifyInput.s can prepare the data for strToFloat.s
+
+*** pow.s
+gets the power of a number
+**** pow_float
+***** ARGUMENTS
+- r0 <-- base (float)
+- r1 <-- eponent (int)
+***** RETURNS
+- r0 <-- result
+
+*** printDecimal.s
+this is the very same printDecimal that I used for program 5. It prints a decimal to stdout
+**** printDecimal
+***** ARGUMENTS
+- r0 <-- int (to print)
+
+*** strToFloat.s
+takes in a string and returns the float contained in the str
+**** strtoFloat
+***** ARGUMENTS
+- r0 <-- addr of integral part
+- r1 <-- len of integral part
+- r2 <-- addr of decimal part
+- r3 <-- len of decimal part
+***** RETURNS:
+- r0 <-- result (float)
+
+*** verifyInput.s
+takes in a string of either an int or a float and verifies that it is a valid number. MUST BE CALLED BEFORE strToFloat or asciiToInt
+**** verifyInputInt
+***** ARGUMENTS
+- r0 <-- addr of string
+***** RETURNS
+- r1 <-- len of int
+**** verifyInputFloat
+***** ARGUMENTS
+- r0 <-- addr of string
+***** RETURNS
+- r0 <-- addr of integral part of float (unchanged)
+- r1 <-- len of integral part of float
+- r2 <-- addr of decimal part of float
+- r3 <-- len of decimal part of float
+
 *** write-float.s
 write-float.s prints a floating point number as decimal to stdount.
-**** wf_single
-prints a single precision floating point to stdout. I use a very hacky way to do this, so see below for a section called "The Hack"
-#+BEGIN_SRC c
-wf_single(float* r0)
-#+END_SRC
+**** writeFloat
+***** ARGUMENTS
+- r0 <-- address of float
+
 
 ** Usage
-** The Hack
-*** write-float
-The hack consists of 5 steps:
-  1. Separate the integral and fractional sections of float f1
-    - This is done manually, using the standard arm processor
-  2. Print the integral part of f1
-    - I am using the printDecimal.s to do this
-  3. Take the fractional part of f1, multiply it by a power of 10 (100,000 is used in the code). Let it be f2
-    - This is done in the neon floating point coprocessor
-  4. Separate the integral and fractional sections of f2
-    - Done in the same manner as before
-  5. Print a decimal point
-  6. Print the integral part of f2
 
-* TODOs by day
-** DONE (2/24) [2/3]:
-- [X] Write code to display single precision floating points to stdout as ascii
-- [-] Write code to display double precision floating points to stdout as ascii
-- [X] DOCUMENTATION!
-*** TODO Write C code as proof of concept
-
-** TODO (2/25) [0/3]:
-- [ ] Write code to read single precision floating points from stdin as ascii
-- [ ] Write code to read double precision floating points from stdin as ascii
-- [ ] Fix the printDecimal.s to accept larger integers, up to the maximum size of a double word (8 bytes, I'm not using x86 defs)
-
-** TODO (2/26) [/]
-*** TODO shared functions [/]
-- [ ] Implement factorial.s
-- [ ] Implement exponents.s
-*** [/] Implement taylor series with 50 iterations for sin
-- [ ] main code
-- [ ] test code (use zsh)
-*** [/] Implement Taylor Series with 50 iterations for cos
-- [ ] main code
-- [ ] test code (use zsh)
-
-** TODO (2/27) [/]
-- [ ] relax, attend class with questions
-- [ ] plan out second week
